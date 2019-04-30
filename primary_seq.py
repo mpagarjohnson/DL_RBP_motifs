@@ -39,11 +39,11 @@ def ParseRead(dict, string, k):
     not_found_flag = False
     #print(string)
     n = len(string)
-    counts = np.zeros(len(dict))
+    counts = np.zeros(len(dict), dtype = bool)
     for i in range(n-k+1):
         substr = string[i:i+k]
         if substr in dict:
-            counts[dict[substr]] = 1
+            counts[dict[substr]] = True
         else:
             not_found_flag = True
             pass
@@ -57,14 +57,14 @@ reads = []
 with open(fn, 'r') as fh:
     lines = []
     numEntries = 0
-    count_vec = np.zeros((1, len(dict)))
+    count_vec = []
+    raw_reads = []
     for line in fh:
-        curr_counts = np.zeros(len(dict))
+        curr_counts = np.zeros(len(dict), dtype = bool)
 
-        if numEntries > 250000:
+        if numEntries > 150000:
             break
 
-        print(numEntries)
         lines.append(line.rstrip())
         if len(lines) == n:
             record = process(lines)
@@ -72,14 +72,20 @@ with open(fn, 'r') as fh:
                 curr_counts, nf_flag = ParseRead(dict, record['sequence'], k)
                 if nf_flag == False:
                     numEntries += 1
-                    count_vec = np.vstack((count_vec, curr_counts))
+                    count_vec.append(curr_counts)
+                    raw_reads.append(record['sequence'])
 
             lines = []
+    count_vec = np.array(count_vec, dtype = bool)
+    raw_reads = np.array(raw_reads, dtype = str)
 
 
 
 
 
-print(count_vec)
+
 outfile_name = sys.argv[3]
+print("Writing to", outfile_name + ".npy")
+print("Writing raw reads to", outfile_name + "_reads.txt")
 np.save(outfile_name, count_vec)
+np.savetxt(outfile_name + "_reads.txt", raw_reads, fmt = "%s")
