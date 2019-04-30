@@ -86,6 +86,6 @@ with open(fn, 'r') as fh:
 
 outfile_name = sys.argv[3]
 print("Writing to", outfile_name + ".npy")
-print("Writing raw reads to", outfile_name + "_reads.txt")
+print("Writing raw reads to", outfile_name + "_reads.seq")
 np.save(outfile_name, count_vec)
 np.savetxt(outfile_name + "_reads.txt", raw_reads, fmt = "%s")
